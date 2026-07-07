@@ -4,6 +4,7 @@ import cors from 'cors';
 import { globalRateLimiter } from './middleware/rateLimit';
 import { errorHandler } from './middleware/errorHandler';
 import { routeRouter } from './api/route';
+import { directionsRouter } from './api/directions';
 
 export const app = express();
 
@@ -21,6 +22,7 @@ app.use(globalRateLimiter);
 
 // API Routes
 app.use('/api/route', routeRouter);
+app.use('/api/directions', directionsRouter);
 
 // Global Error Handling (Must be last)
 app.use(errorHandler);

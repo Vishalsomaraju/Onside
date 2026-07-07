@@ -20,3 +20,10 @@ The Smart Stadiums system utilizes several security patterns to enforce safety a
 - **Tool**: `helmet`
 - **Location**: `backend/src/app.ts`
 - **Strategy**: Adds essential HTTP headers to block cross-site scripting (XSS), prevent clickjacking, and enforce strict content security policies.
+
+## AI Security & Validation
+- **Location**: `backend/src/services/ai/`
+- **Strategy**: 
+  1. The `AI_API_KEY` exists exclusively in the backend environment. It is never exposed to the frontend.
+  2. The LLM's JSON output for intent parsing is treated as untrusted and is validated for correct types (`destinationId`, `accessibilityRequired`) before hitting the domain layer.
+  3. Strict 5-second timeouts prevent slow LLM responses from causing denial-of-service on routing requests; they seamlessly trigger deterministic fallback templates.
