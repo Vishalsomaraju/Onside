@@ -10,7 +10,7 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
   const [originId, setOriginId] = useState('gate-a');
   const [query, setQuery] = useState('');
   const [matchPhase, setMatchPhase] = useState<'pre-match' | 'in-progress' | 'halftime' | 'post-match'>('pre-match');
-  const [language, setLanguage] = useState('en');
+  const [language, setLanguage] = useState<'en' | 'es' | 'fr'>('en');
   const [accessibilityRequired, setAccessibilityRequired] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,7 +84,7 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
           <select 
             id="language-select" 
             value={language} 
-            onChange={e => setLanguage(e.target.value)}
+            onChange={e => setLanguage(e.target.value as 'en' | 'es' | 'fr')}
             disabled={isLoading}
           >
             <option value="en">English</option>
