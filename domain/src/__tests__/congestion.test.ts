@@ -1,5 +1,5 @@
 import { getCongestion, getCongestionMultiplier } from '../congestion';
-import { MatchPhase } from '@smart-stadiums/shared';
+import { CongestionLevel } from '@smart-stadiums/shared';
 
 describe('Congestion Simulator', () => {
   describe('pre-match', () => {
@@ -37,7 +37,7 @@ describe('Congestion Simulator', () => {
   });
 
   it('should apply multiplier 1.0 for unknown congestion level', () => {
-    expect(getCongestionMultiplier('unknown' as any)).toBe(1.0);
+    expect(getCongestionMultiplier('unknown' as CongestionLevel)).toBe(1.0);
   });
   
   it('should fallback to low for unknown match phase', () => {

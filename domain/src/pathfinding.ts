@@ -126,7 +126,7 @@ export function findRoute(
  * Helper to determine if taking this accessible route was a detour
  * compared to a non-accessible shortcut.
  */
-function hasStairsAlternative(fromId: string, toId: string): boolean {
+function hasStairsAlternative(fromId: string, _toId: string): boolean {
   const edges = getEdges(fromId);
   // If there's an edge to somewhere else that is stairs-only, we might have taken a detour.
   // For simplicity, just check if any edge from `fromId` is stairsOnly.

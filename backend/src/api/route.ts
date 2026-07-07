@@ -1,7 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { RouteRequestSchema } from '@smart-stadiums/shared';
 import { findRoute } from '@smart-stadiums/domain';
-import { z } from 'zod';
 
 export const routeRouter = Router();
 
@@ -18,7 +17,7 @@ routeRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
       res.status(400).json({
         success: false,
         reason: 'validation_error',
-        errors: parseResult.error.issues.map((e: any) => ({ path: e.path.join('.'), message: e.message }))
+        errors: parseResult.error.issues.map((e) => ({ path: e.path.join('.'), message: e.message }))
       });
       return;
     }

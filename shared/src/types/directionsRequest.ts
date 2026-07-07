@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { RouteResult } from './stadium';
 
 export const DirectionsRequestSchema = z.object({
   originId: z.string().min(1, 'originId is required'),
@@ -14,5 +15,5 @@ export type DirectionsResponse = {
   success: boolean;
   source: 'ai' | 'fallback';
   directions: string;
-  routeResult?: any; // Contains the raw domain route Result for frontend UI mapping
+  routeResult?: RouteResult; // Contains the raw domain route Result for frontend UI mapping
 };
