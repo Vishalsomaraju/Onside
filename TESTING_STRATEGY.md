@@ -1,6 +1,6 @@
 # Testing Strategy & CI Proof
 
-The system relies on an aggressive, invariant-focused test suite verifying every component from schema to render. We have 81 total tests covering routing invariants, AI containment, fallback paths, and UI rendering.
+The system relies on an aggressive, invariant-focused test suite verifying every component from schema to render. At the current verified state, the repository has 90 passing tests covering routing invariants, AI containment, fallback paths, schema contracts, and UI rendering.
 
 ## 1. Domain (Routing Invariants)
 - **Tooling**: Jest
@@ -16,7 +16,7 @@ The system relies on an aggressive, invariant-focused test suite verifying every
 - **Tooling**: Jest + Supertest
 - **Focus**: Verifying security headers, AI fallback mechanisms, intent parsing, and endpoint health.
 - **Proof**: 
-  - `backend/src/api/__tests__/security.test.ts` asserts malicious AI-prompt injection fails safely.
+  - `backend/src/api/__tests__/security.test.ts` asserts malicious AI-prompt injection fails safely and verifies explicit security headers are present on API responses.
   - `backend/src/services/ai/__tests__/fallbackTemplates.test.ts` verifies localized deterministic fallbacks for EN/ES/FR routing text.
   - `backend/src/api/__tests__/health.test.ts` verifies the high-speed `/health` endpoint bypasses AI.
 
@@ -25,5 +25,14 @@ The system relies on an aggressive, invariant-focused test suite verifying every
 - **Focus**: Proving the user flow from dropdown selection to route rendering.
 - **Proof**: 
   - `frontend/src/__tests__/App.test.tsx` proves that a French localization request safely updates the UI.
-  - `App.test.tsx` proves that safe failure states (no route found, API error) render an accessible warning without crashing the React DOM.
+  - `frontend/src/__tests__/App.test.tsx` proves that safe failure states (no route found, API error) render an accessible warning without crashing the React DOM.
   - `vitest-axe` enforces zero structural accessibility violations on the rendered HTML.
+
+## 5. CI Enforcement
+- **Workflow**: GitHub Actions
+- **Proof**:
+  - `.github/workflows/ci.yml` runs `npm run lint`
+  - `.github/workflows/ci.yml` runs `npm run typecheck`
+  - `.github/workflows/ci.yml` runs `npm run build`
+  - `.github/workflows/ci.yml` runs `npm run test --workspaces -- --coverage`
+- **Purpose**: The repository is judged against a green lint, typecheck, production build, and full coverage-backed test suite instead of local-only claims.

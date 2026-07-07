@@ -35,6 +35,6 @@ To verify the separation of concerns and deployment readiness, view `.env.exampl
 ## Live Demo & Local Verification
 To run the full stack locally and verify the test invariants:
 1. `npm install`
-2. `npm run test --workspaces -- --coverage` (Verifies 81 tests covering routing, localization, security, and UI rendering)
+2. `npm run test --workspaces -- --coverage` (Verifies 90 tests covering routing, localization, security, and UI rendering)
 3. `npm run typecheck && npm run build` (Verifies deployment-ready compilation)
 4. Start via `npm run dev` and navigate to `http://localhost:5173`.
