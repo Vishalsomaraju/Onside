@@ -1,1 +1,1 @@
-export type Placeholder = string;
+export * from './stadium';
