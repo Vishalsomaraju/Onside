@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsc && node dist/index.js",
-    "build": "tsc",
+    "build": "npm --prefix ../shared run build && npm --prefix ../domain run build && tsc",
     "test": "jest",
     "typecheck": "tsc --noEmit"
   },
