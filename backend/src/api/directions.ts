@@ -24,13 +24,14 @@ directionsRouter.post('/', async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    const { originId, query, matchPhase, language } = parseResult.data;
+    const { originId, query, matchPhase, language, accessibilityRequired } = parseResult.data;
 
     // 2. AI Phase 1: Parse Intent
     const intentResult = await parseIntent(query);
 
     // 3. Domain Phase: Deterministic Pathfinding
-    const routeResult = findRoute(originId, intentResult.destinationId, matchPhase, intentResult.accessibilityRequired);
+    const finalAccessibility = accessibilityRequired || intentResult.accessibilityRequired;
+    const routeResult = findRoute(originId, intentResult.destinationId, matchPhase, finalAccessibility);
 
     if (!routeResult.success) {
        // Could not find a route
@@ -44,7 +45,7 @@ directionsRouter.post('/', async (req: Request, res: Response, next: NextFunctio
     }
 
     // 4. AI Phase 2: Natural Language Directions
-    const directionsResult = await generateDirections(routeResult.steps!, language, intentResult.accessibilityRequired);
+    const directionsResult = await generateDirections(routeResult.steps!, language, finalAccessibility);
 
     // If either phase fell back, mark the whole response as fallback just for transparency, or keep track of both.
     // We'll mark it as 'ai' only if BOTH succeeded.

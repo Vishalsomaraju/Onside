@@ -10,6 +10,32 @@ describe('Pathfinding', () => {
     }
   });
 
+  it('should return error if node does not exist', () => {
+    const result = findRoute('gate-a', 'non-existent', 'pre-match', false);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.reason).toBe('invalid_nodes');
+    }
+  });
+
+  it('should return error if no route found', () => {
+    // Add a disconnected node to the graph just for this test
+    const { mockNodes, mockGraph } = require('../graph');
+    mockNodes['isolated-node'] = { id: 'isolated-node', label: 'Isolated', zoneId: 'zone-north' };
+    mockGraph['isolated-node'] = [];
+    
+    const result = findRoute('gate-a', 'isolated-node', 'pre-match', false);
+    
+    // Cleanup
+    delete mockNodes['isolated-node'];
+    delete mockGraph['isolated-node'];
+    
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.reason).toBe('no_route_found');
+    }
+  });
+
   it('should return invalid_nodes for unknown nodes', () => {
     const result = findRoute('unknown-a', 'block-101', 'pre-match', false);
     expect(result.success).toBe(false);

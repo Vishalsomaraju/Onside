@@ -80,20 +80,4 @@ describe('POST /api/route', () => {
     expect(rateLimitedResponses.length).toBeGreaterThan(0);
     expect(rateLimitedResponses[0].body.reason).toBe('rate_limit_exceeded');
   });
-
-  it('should not leak stack traces on unexpected errors', async () => {
-    // To test this, we can temporarily mock findRoute to throw, or send a malformed request that triggers the global error handler if any exist.
-    // We'll mock the domain module for this specific test
-    jest.mock('@smart-stadiums/domain', () => {
-      return {
-        findRoute: () => { throw new Error('Secret Internal Failure'); }
-      };
-    });
-
-    // We must isolate modules or use require to get the mocked version. 
-    // Wait, jest.mock must be hoisted or applied before import.
-    // Instead, a simpler way is to route to a non-existent path. 
-    // But we didn't add a 404 handler, so express will just return HTML.
-    // Let's just trust the manual implementation and test the output format of a manual global error trigger.
-  });
 });

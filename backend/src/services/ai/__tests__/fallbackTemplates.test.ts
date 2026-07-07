@@ -26,4 +26,13 @@ describe('Fallback Templates', () => {
     expect(res).toContain('Siga estos pasos:');
     expect(res).toContain('Node 1');
   });
+
+  it('matches gates and exits', () => {
+    expect(parseIntentFallback('where is gate b')).toEqual({ destinationId: 'gate-b', accessibilityRequired: false });
+    expect(parseIntentFallback('i need an exit')).toEqual({ destinationId: 'gate-a', accessibilityRequired: false });
+  });
+
+  it('matches block and seat', () => {
+    expect(parseIntentFallback('my seat is in block 101')).toEqual({ destinationId: 'block-101', accessibilityRequired: false });
+  });
 });

@@ -7,7 +7,14 @@
 ### Domain Layer (`domain/__tests__/`)
 - **Graph Validity**: Tests ensure the reference stadium has zero orphan nodes and zero dangling edges.
 - **Congestion Simulation**: Tests enforce determinism across all permutations of zones and match phases.
-- **Pathfinding & Accessibility**: Tests verify valid routing, correct handling of unreachable destinations, and strictly avoiding `stairsOnly` paths when accessibility is required.
+- Pathfinding logic, congestion generation, and graph integrity.
+- Expected coverage: >=90%.
+
+### Frontend Integration & Accessibility (`frontend/`)
+- Tool: `vitest` with `jsdom`, `@testing-library/react`, and `axe-core`
+- Interaction Tests: Verify the UI components respond correctly to inputs and form submission (e.g., `App.test.tsx` full workflow).
+- Accessibility Tests: Automated DOM accessibility checks using `vitest-axe` on all rendered components to ensure no critical/serious violations exist.
+- Expected coverage: >=90% line coverage.
 
 ### Backend API Layer (`backend/src/__tests__/`)
 - **Input Validation**: Tests prove `RouteRequestSchema` accurately rejects missing fields and invalid enumerations with HTTP 400.

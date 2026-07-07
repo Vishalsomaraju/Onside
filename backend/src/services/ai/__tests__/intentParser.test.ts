@@ -36,6 +36,15 @@ describe('Intent Parser Service', () => {
     expect(res).toEqual({ destinationId: 'food-1', accessibilityRequired: true, source: 'ai' });
   });
 
+  it('should fallback if AI returns valid JSON but invalid shape', async () => {
+    mockGenerateContent.mockResolvedValue({
+      response: { text: () => JSON.stringify({}) }
+    });
+
+    const res = await parseIntent('i need wheelchair access to food');
+    expect(res.source).toBe('fallback');
+  });
+
   it('should fallback if AI returns malformed JSON', async () => {
     mockGenerateContent.mockResolvedValue({
       response: { text: () => 'Not a JSON' }

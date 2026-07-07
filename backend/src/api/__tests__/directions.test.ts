@@ -42,4 +42,21 @@ describe('POST /api/directions', () => {
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
   });
+
+  it('should pass error to next if an unhandled exception occurs', async () => {
+    // Force a mock to throw an error bypassing the safe catch
+    const { parseIntent } = require('../../services/ai/intentParser');
+    parseIntent.mockImplementationOnce(() => { throw new Error('Catastrophic failure'); });
+    
+    const res = await request(app).post('/api/directions').send({
+      originId: 'gate-a',
+      query: 'my seat',
+      matchPhase: 'pre-match',
+      language: 'en'
+    });
+    
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.reason).toBe('internal_server_error');
+  });
 });

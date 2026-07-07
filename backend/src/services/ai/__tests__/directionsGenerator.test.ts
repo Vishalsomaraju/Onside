@@ -40,6 +40,15 @@ describe('Directions Generator Service', () => {
     expect(res).toEqual({ directions: 'Go to Node 1.', source: 'ai' });
   });
 
+  it('should throw and fallback if AI returns empty string', async () => {
+    mockGenerateContent.mockResolvedValue({
+      response: { text: () => '' }
+    });
+
+    const res = await generateDirections(mockSteps, 'en', false);
+    expect(res.source).toBe('fallback');
+  });
+
   it('should fallback if AI throws', async () => {
     mockGenerateContent.mockRejectedValue(new Error('Timeout'));
 
