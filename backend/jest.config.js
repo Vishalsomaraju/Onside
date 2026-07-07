@@ -2,4 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  moduleNameMapper: {
+    '^@smart-stadiums/(.*)$': '<rootDir>/../$1/src'
+  }
 };

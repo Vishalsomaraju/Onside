@@ -4,5 +4,6 @@ module.exports = {
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@smart-stadiums/(.*)$': '<rootDir>/../$1/src'
-  }
+  },
+  testPathIgnorePatterns: ['/node_modules/', '/dist/']
 };

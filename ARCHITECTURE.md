@@ -2,8 +2,8 @@
 
 ## Layer Boundaries
 
-*   **`domain/`**: Pure functions only. Stadium graph model, weighted pathfinding (Dijkstra/A*), accessibility filtering, congestion simulation. Zero UI or transport imports.
-*   **`backend/api/`**: Route handlers only. Validates requests, calls the domain layer, calls AI orchestration service, maps results to responses. No business logic inline.
-*   **`backend/services/`**: AI orchestration. Prompt construction, timeouts, retries, fallback triggers. Isolated from route handlers.
-*   **`shared/types/`**: Zod validation schemas and types defined once, imported by both frontend and backend. No duplicated validation rules.
-*   **`frontend/`**: Query form, route/result display, accessibility-first components. No pathfinding or AI logic inline in components.
+1.  **Domain (`domain/`)**: Pure business logic. Contains the stadium graph (`graph.ts`), deterministic congestion simulator (`congestion.ts`), and pathfinding algorithm (`pathfinding.ts`). Zero dependencies on UI or transport layers.
+2.  **Backend API (`backend/api/`, `backend/middleware/`)**: The transport layer built on Express. Thin route handlers (`route.ts`) validate requests, invoke the domain layer, and map responses. Zero pathfinding logic exists here.
+3.  **Backend Services (`backend/services/`)**: Orchestration for external AI providers (planned for Phase 3).
+4.  **Shared Types (`shared/types/`)**: Centralized Zod schemas (e.g. `routeRequest.ts`) and TypeScript interfaces used by both the frontend and backend.
+5.  **Frontend (`frontend/`)**: React presentation layer focused on accessibility. No pathfinding or AI logic inline.
