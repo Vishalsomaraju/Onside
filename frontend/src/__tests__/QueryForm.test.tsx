@@ -86,4 +86,15 @@ describe('QueryForm Component', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('should apply distinct visual loading state to submit button', () => {
+    const { rerender } = render(<QueryForm onSubmit={vi.fn()} isLoading={false} />);
+    
+    const button = screen.getByRole('button', { name: /Get Directions/i });
+    expect(button).not.toHaveClass('loading-pulse');
+    
+    rerender(<QueryForm onSubmit={vi.fn()} isLoading={true} />);
+    
+    expect(button).toHaveClass('loading-pulse');
+  });
 });

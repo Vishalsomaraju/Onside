@@ -15,3 +15,11 @@ This application views Accessibility as a core routing requirement, not just a U
 ## 3. Linguistic Accessibility
 - **Feature**: 2026 Host Nation Support
 - **Proof**: Natively supports English, Spanish, and French, mapping to the USA, Mexico, and Canada World Cup audiences. Tested via `shared/src/__tests__/directionsRequest.test.ts` and `frontend/src/__tests__/App.test.tsx`.
+
+## 4. Visual Design System & Contrast
+- **Feature**: WCAG AA Programmatic Contrast Enforcement
+- **Proof**: `frontend/src/__tests__/accessibility.test.ts` explicitly asserts mathematically that all foreground-to-background combinations in the CSS design token system (`frontend/src/index.css`) meet WCAG AA requirements (>4.5:1 for text, >3.0:1 for boundaries/focus rings).
+- **Feature**: Semantic Congestion Indicators
+- **Proof**: Congestion levels are conveyed using both a styled dot and explicit text, ensuring state is not communicated by color alone. Tested in `frontend/src/__tests__/RouteResult.test.tsx`.
+- **Feature**: Perceivable Loading States
+- **Proof**: The submit button has a distinct, tested `.loading-pulse` state that safely falls back to a non-animated border in `@media (prefers-reduced-motion: reduce)`, ensuring loading states are visible without requiring motion.

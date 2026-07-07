@@ -24,7 +24,7 @@ describe('RouteResult Component', () => {
     expect(screen.getByText('Go straight and turn left.')).toBeInTheDocument();
     expect(screen.getByText(/Source: AI/i)).toBeInTheDocument();
     expect(screen.getByText('Start')).toBeInTheDocument();
-    expect(screen.getByText(/\(10m\)/)).toBeInTheDocument();
+    expect(screen.getByText(/10m/)).toBeInTheDocument();
   });
 
   it('should render error message', () => {
@@ -42,5 +42,20 @@ describe('RouteResult Component', () => {
     const { container } = render(<RouteResult result={mockResult} error={null} isLoading={false} />);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should convey congestion level with text/icon, not just color', () => {
+    const { container } = render(<RouteResult result={mockResult} error={null} isLoading={false} />);
+    
+    // Check that we have a specific congestion indicator element
+    const congestionIndicator = container.querySelector('.congestion-indicator');
+    expect(congestionIndicator).toBeInTheDocument();
+    
+    // Must have a textual component or aria-hidden dot (semantic icon)
+    const dot = congestionIndicator?.querySelector('.congestion-dot');
+    const text = congestionIndicator?.querySelector('.congestion-text');
+    
+    expect(dot).toBeInTheDocument();
+    expect(text).toHaveTextContent(/Low|Medium|High/i);
   });
 });

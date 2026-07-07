@@ -40,11 +40,18 @@ export function RouteResult({ result, error, isLoading }: RouteResultProps) {
               <ol>
                 {result.routeResult.steps.map((step: RouteStep, index: number) => (
                   <li key={`${step.nodeId}-${index}`}>
-                    <span className="step-label">{step.label}</span>
-                    <span className="step-details">
-                      ({step.distanceToNext}m) - Congestion: {step.congestionLevel}
-                      {step.requiresAccessibleDetour && ' [Accessible Detour]'}
-                    </span>
+                    <div className="step-header">
+                      <span className="step-number">{index + 1}.</span>
+                      <span className="step-label">{step.label}</span>
+                    </div>
+                    <div className="step-details">
+                      <span>{step.distanceToNext}m</span>
+                      <span className={`congestion-indicator congestion-${step.congestionLevel}`}>
+                        <span className="congestion-dot" aria-hidden="true">●</span>
+                        <span className="congestion-text">{step.congestionLevel.charAt(0).toUpperCase() + step.congestionLevel.slice(1)}</span>
+                      </span>
+                      {step.requiresAccessibleDetour && <span className="accessible-detour">Accessible Detour</span>}
+                    </div>
                   </li>
                 ))}
               </ol>

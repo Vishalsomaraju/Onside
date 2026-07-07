@@ -29,6 +29,7 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
   return (
     <form onSubmit={handleSubmit} className="query-form" aria-labelledby="form-heading">
       <h2 id="form-heading">Find Your Way</h2>
+      <div className="pitch-divider" aria-hidden="true"></div>
       
       <fieldset>
         <legend>Route Requirements</legend>
@@ -107,7 +108,11 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
 
       </fieldset>
 
-      <button type="submit" disabled={isLoading || !query.trim()}>
+      <button 
+        type="submit" 
+        disabled={isLoading || !query.trim()}
+        className={isLoading ? 'loading-pulse' : ''}
+      >
         {isLoading ? 'Finding route...' : 'Get Directions'}
       </button>
     </form>
