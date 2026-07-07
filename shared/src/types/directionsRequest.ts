@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { RouteResult } from './stadium';
+import type { RouteResult } from './stadium';
 
 export const DirectionsRequestSchema = z.object({
   originId: z.string().min(1, 'originId is required'),
