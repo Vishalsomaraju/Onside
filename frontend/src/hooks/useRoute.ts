@@ -12,7 +12,8 @@ export function useRoute() {
     setResult(null);
 
     try {
-      const response = await fetch('/api/directions', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${apiBaseUrl}/api/directions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

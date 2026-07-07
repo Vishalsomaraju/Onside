@@ -12,7 +12,23 @@ export const app = express();
 app.use(helmet());
 
 // Cross-Origin Resource Sharing
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_ORIGIN,
+  'http://localhost:5173'
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (origin.endsWith('.vercel.app')) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST'],
+    credentials: false
+  })
+);
 
 // Body Parsing
 app.use(express.json());
@@ -21,6 +37,7 @@ app.use(express.json());
 app.use(globalRateLimiter);
 
 // API Routes
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api/route', routeRouter);
 app.use('/api/directions', directionsRouter);
 
