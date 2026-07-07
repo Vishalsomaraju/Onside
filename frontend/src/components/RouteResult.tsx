@@ -1,4 +1,4 @@
-import { DirectionsResponse } from '@smart-stadiums/shared';
+import type { DirectionsResponse, RouteStep } from '@smart-stadiums/shared';
 
 interface RouteResultProps {
   result: DirectionsResponse | null;
@@ -24,8 +24,8 @@ export function RouteResult({ result, error, isLoading }: RouteResultProps) {
       )}
 
       {result && (
-        <div className="result-card">
-          <h3>Directions</h3>
+        <div className={`result-card ${!result.success ? 'result-fallback' : ''}`}>
+          <h3>{result.success ? 'Directions' : 'General Guidance'}</h3>
           
           <div className="directions-text">
             <p>{result.directions}</p>
@@ -34,11 +34,11 @@ export function RouteResult({ result, error, isLoading }: RouteResultProps) {
             </small>
           </div>
 
-          {result.routeResult?.steps && result.routeResult.steps.length > 0 && (
+          {result.success && result.routeResult?.success && result.routeResult.steps.length > 0 && (
             <div className="route-steps">
               <h4>Step-by-step Route</h4>
               <ol>
-                {result.routeResult.steps.map((step, index) => (
+                {result.routeResult.steps.map((step: RouteStep, index: number) => (
                   <li key={`${step.nodeId}-${index}`}>
                     <span className="step-label">{step.label}</span>
                     <span className="step-details">
@@ -48,6 +48,12 @@ export function RouteResult({ result, error, isLoading }: RouteResultProps) {
                   </li>
                 ))}
               </ol>
+            </div>
+          )}
+
+          {!result.success && (
+            <div className="no-route-warning">
+              <p>Specific turn-by-turn routing is currently unavailable for this request.</p>
             </div>
           )}
         </div>

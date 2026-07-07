@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DirectionsRequest, DirectionsResponse } from '@smart-stadiums/shared';
+import type { DirectionsRequest, DirectionsResponse } from '@smart-stadiums/shared';
 
 export function useRoute() {
   const [loading, setLoading] = useState(false);

@@ -14,7 +14,7 @@ export const parseIntent = async (query: string): Promise<{ destinationId: strin
     const prompt = `
 You are an intent parser for a stadium routing app. 
 Map the user's query to a valid destination ID and determine if they need an accessible (no stairs) route.
-Valid destination IDs: "gate-a", "gate-b", "block-101", "restroom-1", "food-1".
+Valid destination IDs: "gate-a", "gate-b", "block-101", "restroom-north", "food-east".
 Respond with strict JSON in this format: {"destinationId": "string", "accessibilityRequired": boolean}
 
 User Query: "${query}"

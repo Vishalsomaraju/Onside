@@ -105,4 +105,42 @@ describe('POST /api/directions', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.reason).toBe('internal_server_error');
   });
+
+  it('should resolve a restroom query successfully', async () => {
+    (parseIntent as jest.Mock).mockResolvedValue({
+      destinationId: 'restroom-north',
+      accessibilityRequired: false,
+      source: 'fallback'
+    });
+    
+    const res = await request(app).post('/api/directions').send({
+      originId: 'gate-a',
+      query: 'restroom',
+      matchPhase: 'pre-match'
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    // Path: gate-a -> concourse-north -> restroom-north
+    expect(res.body.routeResult.steps.length).toBeGreaterThan(0);
+  });
+
+  it('should resolve a food query successfully', async () => {
+    (parseIntent as jest.Mock).mockResolvedValue({
+      destinationId: 'food-east',
+      accessibilityRequired: false,
+      source: 'ai'
+    });
+    
+    const res = await request(app).post('/api/directions').send({
+      originId: 'concourse-north',
+      query: 'food',
+      matchPhase: 'pre-match'
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    // Path: concourse-north -> concourse-east -> food-east
+    expect(res.body.routeResult.steps.length).toBeGreaterThan(0);
+  });
 });

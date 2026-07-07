@@ -11,9 +11,9 @@ export const parseIntentFallback = (query: string): { destinationId: string; acc
   
   let destinationId = 'block-101'; // Safe default
   if (q.includes('food') || q.includes('hot dog') || q.includes('beer') || q.includes('concession')) {
-    destinationId = 'food-1';
+    destinationId = 'food-east';
   } else if (q.includes('restroom') || q.includes('bathroom') || q.includes('toilet') || q.includes('wc')) {
-    destinationId = 'restroom-1';
+    destinationId = 'restroom-north';
   } else if (q.includes('gate a')) {
     destinationId = 'gate-a';
   } else if (q.includes('gate b')) {

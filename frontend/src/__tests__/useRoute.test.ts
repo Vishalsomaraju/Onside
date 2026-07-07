@@ -3,7 +3,7 @@ import { useRoute } from '../hooks/useRoute';
 
 // Mock global fetch
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch as unknown as typeof fetch;
 
 describe('useRoute Hook', () => {
   beforeEach(() => {

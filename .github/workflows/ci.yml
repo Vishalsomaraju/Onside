@@ -28,5 +28,8 @@ jobs:
     - name: Run typecheck
       run: npm run typecheck
       
+    - name: Run production build
+      run: npm run build
+      
     - name: Run all tests with coverage gate
       run: npm run test --workspaces -- --coverage

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "dist/api/index.js",
   "scripts": {
+    "dev": "tsc && node dist/api/index.js",
     "build": "tsc",
     "test": "jest",
     "typecheck": "tsc --noEmit"

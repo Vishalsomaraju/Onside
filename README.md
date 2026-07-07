@@ -25,6 +25,6 @@ A fan asks for directions to a destination (e.g. seat, food, gate) inside the st
 ## Local Setup
 1. Clone the repository and navigate into it: `cd Onside`
 2. Install all dependencies across workspaces: `npm install`
-3. Copy the `.env.example` file to `.env` in the `backend` workspace, and add your Gemini API key.
-4. Run the development environment: `npm run dev`
+3. Set your Gemini API key as an environment variable (`AI_API_KEY`). For example, in PowerShell: `$env:AI_API_KEY="your-key"` or in Bash: `export AI_API_KEY="your-key"`.
+4. Run the development environment from the root directory: `npm run dev`
 5. The frontend will be available at `http://localhost:5173` and the backend at `http://localhost:3000`.

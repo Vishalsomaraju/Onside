@@ -1,7 +1,8 @@
+/// <reference types="vitest-axe/extend-expect" />
 import { render, screen } from '@testing-library/react';
 import { RouteResult } from '../components/RouteResult';
 import { axe } from 'vitest-axe';
-import { DirectionsResponse } from '@smart-stadiums/shared';
+import type { DirectionsResponse } from '@smart-stadiums/shared';
 
 describe('RouteResult Component', () => {
   const mockResult: DirectionsResponse = {

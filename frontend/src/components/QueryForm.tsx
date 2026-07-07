@@ -1,5 +1,5 @@
-import { FormEvent, useState } from 'react';
-import { DirectionsRequest } from '@smart-stadiums/shared';
+import React, { useState } from 'react';
+import type { DirectionsRequest } from '@smart-stadiums/shared';
 
 interface QueryFormProps {
   onSubmit: (request: DirectionsRequest) => void;
@@ -13,7 +13,7 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
   const [language, setLanguage] = useState('en');
   const [accessibilityRequired, setAccessibilityRequired] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
@@ -44,8 +44,8 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
             <option value="gate-a">Gate A</option>
             <option value="gate-b">Gate B</option>
             <option value="block-101">Block 101</option>
-            <option value="restroom-1">Restroom 1</option>
-            <option value="food-1">Food Stand 1</option>
+            <option value="restroom-north">Restroom 1</option>
+            <option value="food-east">Food Stand 1</option>
           </select>
         </div>
 

@@ -25,5 +25,5 @@
 
 ## Continuous Integration
 - A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request.
-- The pipeline executes linting, typechecking, and the full test suite (`npm run test --workspaces -- --coverage`).
+- The pipeline executes linting, typechecking, the production build, and the full test suite (`npm run test --workspaces -- --coverage`).
 - The pipeline will fail if any layer configured with `coverageThreshold` drops below the 90% boundary.

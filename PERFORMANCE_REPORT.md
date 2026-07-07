@@ -7,10 +7,10 @@ The Smart Stadiums application incorporates several architectural decisions focu
 - **Strategy**: The core routing algorithm uses Dijkstra's shortest path algorithm over an in-memory graph.
 - **Why it matters**: Complex congestion checks and accessibility filters are evaluated statically via computationally inexpensive graph traversals. By keeping this logic entirely separated from the backend API handlers, it can execute synchronously in `< 5ms` on standard hardware, avoiding any I/O overhead.
 
-## 2. Frontend Debouncing and Optimizations
+## 2. Frontend Optimizations
 - **Location**: `frontend/src/App.tsx` & `frontend/src/hooks/useRoute.ts`
 - **Strategy**: 
-  - Network requests to the backend are only dispatched upon explicit form submission, rather than per keystroke on the text input.
+  - Network requests to the backend are purely submit-driven. We intentionally do not use on-change debouncing, as executing AI intent parsing on every keystroke pause is inefficient. Users must explicitly click "Get Directions".
   - State updates are carefully managed to avoid unnecessary DOM re-renders. 
   - UI state leverages an `isLoading` boolean to disable inputs during network transit, preventing duplicate parallel requests.
 

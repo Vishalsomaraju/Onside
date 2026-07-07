@@ -3,8 +3,8 @@ import { RouteStep } from '@smart-stadiums/shared';
 
 describe('Fallback Templates', () => {
   it('should parse intent correctly', () => {
-    expect(parseIntentFallback('wheelchair bathroom')).toEqual({ destinationId: 'restroom-1', accessibilityRequired: true });
-    expect(parseIntentFallback('food')).toEqual({ destinationId: 'food-1', accessibilityRequired: false });
+    expect(parseIntentFallback('wheelchair bathroom')).toEqual({ destinationId: 'restroom-north', accessibilityRequired: true });
+    expect(parseIntentFallback('food')).toEqual({ destinationId: 'food-east', accessibilityRequired: false });
     expect(parseIntentFallback('gate a')).toEqual({ destinationId: 'gate-a', accessibilityRequired: false });
     expect(parseIntentFallback('random')).toEqual({ destinationId: 'block-101', accessibilityRequired: false });
   });

@@ -1,9 +1,10 @@
+/// <reference types="vitest-axe/extend-expect" />
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../App';
 import { axe } from 'vitest-axe';
 
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+globalThis.fetch = mockFetch as unknown as typeof fetch;
 
 describe('App Integration', () => {
   beforeEach(() => {
@@ -45,6 +46,42 @@ describe('App Integration', () => {
     });
     
     expect(screen.getByText('Gate A', { selector: 'span' })).toBeInTheDocument();
+    expect(screen.getByText('Gate A', { selector: 'span' })).toBeInTheDocument();
+  });
+
+  it('proves restroom/food requests flow through without surfacing an error state', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        directions: 'Go to restroom north',
+        source: 'ai',
+        routeResult: {
+          success: true,
+          steps: [
+            { nodeId: 'restroom-north', label: 'North Restrooms', distanceToNext: 0, congestionLevel: 'low' }
+          ]
+        }
+      })
+    });
+
+    render(<App />);
+    
+    // Select Restroom 1 from the dropdown
+    const originSelect = screen.getByLabelText(/Starting Location/i);
+    fireEvent.change(originSelect, { target: { value: 'restroom-north' } });
+    
+    const queryInput = screen.getByLabelText(/What do you need/i);
+    fireEvent.change(queryInput, { target: { value: 'food' } });
+    
+    const button = screen.getByRole('button', { name: /Get Directions/i });
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Go to restroom north')).toBeInTheDocument();
+    });
+    
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('should be accessible at root level (no axe violations)', async () => {

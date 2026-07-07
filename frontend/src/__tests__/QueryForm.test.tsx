@@ -1,3 +1,4 @@
+/// <reference types="vitest-axe/extend-expect" />
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryForm } from '../components/QueryForm';
 import { axe } from 'vitest-axe';
