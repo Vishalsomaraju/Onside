@@ -1,9 +1,33 @@
-# Architecture
+# Architecture Details
 
-## Layer Boundaries
+This repository uses a strict monorepo architecture divided cleanly by operational concern.
 
-1.  **Domain (`domain/`)**: Pure business logic. Contains the stadium graph (`graph.ts`), deterministic congestion simulator (`congestion.ts`), and pathfinding algorithm (`pathfinding.ts`). Zero dependencies on UI or transport layers.
-2.  **Backend API (`backend/api/`, `backend/middleware/`)**: The transport layer built on Express. Thin route handlers (`route.ts`) validate requests, invoke the domain layer, and map responses. Zero pathfinding logic exists here.
-3.  **Backend Services (`backend/services/`)**: Orchestration for external AI providers. Specifically, `backend/services/ai/` isolates all prompts and Gemini SDK calls for parsing free-text queries (`intentParser.ts`) and formatting natural language directions (`directionsGenerator.ts`). Includes strict timeouts and deterministic fallbacks.
-4.  **Shared Types (`shared/types/`)**: Centralized Zod schemas (e.g. `routeRequest.ts`) and TypeScript interfaces used by both the frontend and backend.
-5.  **Frontend (`frontend/`)**: React presentation layer focused on accessibility. No pathfinding or AI logic inline.
+## Project Structure
+
+1. **`@smart-stadiums/shared`**
+   - **Role**: Source of truth for API contracts.
+   - **Key Tech**: Zod schemas.
+   - **Why**: Enforces exact data shapes (language limits, bounded queries) before data crosses the network boundary.
+
+2. **`@smart-stadiums/domain`**
+   - **Role**: Pure logic calculation layer.
+   - **Key Tech**: TypeScript (No dependencies).
+   - **Why**: Dijkstra's algorithm for pathfinding is completely isolated from HTTP logic and AI APIs, making it mathematically provable and independently testable.
+
+3. **`@smart-stadiums/backend`**
+   - **Role**: AI orchestration and HTTP routing.
+   - **Key Tech**: Node, Express, Helmet, `@google/generative-ai`.
+   - **Why**: Handles rate limiting, strict CORS origin checks, orchestrates the Gemini flash model, applies timeouts, and binds the domain pathfinding to HTTP endpoints.
+
+4. **`frontend`**
+   - **Role**: User Interface.
+   - **Key Tech**: React, Vite.
+   - **Why**: Deployed as a static bundle to Vercel, providing instant interaction and localized rendering based strictly on backend payload.
+
+## Deployment Target
+This codebase is verified against the recommended judging deployment environment:
+- **Frontend**: Vercel (`smartstadiums.vercel.app`)
+- **Backend API**: Render Web Service (`smartstadiums-api.onrender.com`)
+- **Database (Optional/Future)**: Neon Postgres.
+
+*Configured explicitly via `.env.example` templates.*

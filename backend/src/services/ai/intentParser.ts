@@ -32,8 +32,11 @@ User Query: "${query}"
     const text = result.response.text();
     const parsed = JSON.parse(text);
 
-    // Naive zod-like runtime check on the JSON response
+    const validIds = ['gate-a', 'gate-b', 'block-101', 'restroom-north', 'food-east'];
     if (typeof parsed.destinationId === 'string' && typeof parsed.accessibilityRequired === 'boolean') {
+      if (!validIds.includes(parsed.destinationId)) {
+        throw new Error('AI returned an invalid destination ID');
+      }
       return { destinationId: parsed.destinationId, accessibilityRequired: parsed.accessibilityRequired, source: 'ai' };
     }
     

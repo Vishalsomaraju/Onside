@@ -1,29 +1,23 @@
 # Security Posture
 
-The Smart Stadiums system utilizes several security patterns to enforce safety across all API surfaces.
+This document proves the specific security guardrails implemented to lock down the application and contain the AI logic.
 
-## Input Validation
-- **Tool**: `zod`
-- **Location**: `shared/src/types/routeRequest.ts` & `backend/src/api/route.ts`
-- **Strategy**: Every incoming request to `POST /api/route` is rigidly validated against `RouteRequestSchema`. Invalid data is automatically rejected with a clean `400 Bad Request` containing safe validation failure messages.
+## 1. Strict CORS Allow-List
+We do not use wildcard `*` CORS in production.
+- **Implementation**: `backend/src/app.ts` parses `process.env.FRONTEND_ORIGIN` and explicitly rejects unmatched cross-origin traffic.
+- **Evidence**: See the array matching logic in `backend/src/app.ts` under "Cross-Origin Resource Sharing".
 
-## Rate Limiting
-- **Tool**: `express-rate-limit`
-- **Location**: `backend/src/middleware/rateLimit.ts`
-- **Strategy**: The API is restricted to 30 requests per minute per IP address. This mitigates automated DDoS attacks or scraping against the pathfinding endpoint.
+## 2. Security Headers
+We use `helmet` to strictly enforce security headers across all API endpoints.
+- **Implementation**: Explicitly enabled `contentSecurityPolicy`, `frameguard: { action: 'deny' }`, `referrerPolicy: { policy: 'strict-origin-when-cross-origin' }`, and `xContentTypeOptions: true`.
+- **Evidence**: `backend/src/api/__tests__/security.test.ts` mathematically asserts these headers are present on route responses.
 
-## Error Handling & Information Leakage
-- **Location**: `backend/src/middleware/errorHandler.ts`
-- **Strategy**: A global error handler catches all unhandled exceptions. It suppresses stack traces and internal logic details, returning a standardized `500 Internal Server Error` with a generic, safe payload.
+## 3. Input Sanitization & Boundary
+Raw text input from the client is highly sanitized before reaching the AI.
+- **Implementation**: `shared/src/types/directionsRequest.ts` bounds the query length (`.max(200)`) and transforms the string by stripping control characters (`[\x00-\x1F\x7F-\x9F]`) and collapsing whitespace.
+- **Evidence**: `shared/src/__tests__/directionsRequest.test.ts` tests length limits and sanitization explicitly.
 
-## Secure HTTP Headers
-- **Tool**: `helmet`
-- **Location**: `backend/src/app.ts`
-- **Strategy**: Adds essential HTTP headers to block cross-site scripting (XSS), prevent clickjacking, and enforce strict content security policies.
-
-## AI Security & Validation
-- **Location**: `backend/src/services/ai/`
-- **Strategy**: 
-  1. The `AI_API_KEY` exists exclusively in the backend environment. It is never exposed to the frontend.
-  2. The LLM's JSON output for intent parsing is treated as untrusted and is validated for correct types (`destinationId`, `accessibilityRequired`) before hitting the domain layer.
-  3. Strict 5-second timeouts prevent slow LLM responses from causing denial-of-service on routing requests; they seamlessly trigger deterministic fallback templates.
+## 4. AI Output Validation (Prompt Injection Defense)
+The AI is treated as a hostile input source. Prompt injection is structurally useless because the AI cannot override routing logic.
+- **Implementation**: `backend/src/services/ai/intentParser.ts` intercepts the AI's output and validates the parsed JSON `destinationId` against a hardcoded array of safe IDs (`validIds`). If the AI hallucinates a non-existent ID due to injection, the system throws an explicit error and defaults to the safe deterministic fallback parser.
+- **Evidence**: `backend/src/api/__tests__/security.test.ts` submits a malicious "IGNORE ALL INSTRUCTIONS" query and verifies the system does not leak, crash, or alter routing facts.

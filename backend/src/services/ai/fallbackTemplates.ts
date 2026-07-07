@@ -31,10 +31,16 @@ export const parseIntentFallback = (query: string): { destinationId: string; acc
  * Deterministic fallback for generating directions.
  */
 export const generateDirectionsFallback = (steps: RouteStep[], language: string): string => {
-  const isEs = language.toLowerCase().startsWith('es');
+  const lang = language.toLowerCase();
+  const isEs = lang.startsWith('es');
+  const isFr = lang.startsWith('fr');
   
   if (isEs) {
     return `Siga estos pasos:\n` + steps.map((s, i) => `${i + 1}. Vaya a ${s.label} (${s.distanceToNext}m). Congestión: ${s.congestionLevel}`).join('\n');
+  }
+
+  if (isFr) {
+    return `Veuillez suivre ces étapes :\n` + steps.map((s, i) => `${i + 1}. Allez à ${s.label} (${s.distanceToNext}m). Congestion : ${s.congestionLevel}`).join('\n');
   }
 
   return `Please follow these steps:\n` + steps.map((s, i) => `${i + 1}. Head to ${s.label} (${s.distanceToNext}m). Congestion is ${s.congestionLevel}.`).join('\n');

@@ -27,6 +27,15 @@ describe('Fallback Templates', () => {
     expect(res).toContain('Node 1');
   });
 
+  it('should generate directions correctly in french', () => {
+    const steps: RouteStep[] = [
+      { nodeId: 'node1', label: 'Node 1', distanceToNext: 10, congestionLevel: 'low', requiresAccessibleDetour: false }
+    ];
+    const res = generateDirectionsFallback(steps, 'fr');
+    expect(res).toContain('Veuillez suivre ces étapes :');
+    expect(res).toContain('Node 1');
+  });
+
   it('matches gates and exits', () => {
     expect(parseIntentFallback('where is gate b')).toEqual({ destinationId: 'gate-b', accessibilityRequired: false });
     expect(parseIntentFallback('i need an exit')).toEqual({ destinationId: 'gate-a', accessibilityRequired: false });

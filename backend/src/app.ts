@@ -9,7 +9,12 @@ import { directionsRouter } from './api/directions';
 export const app = express();
 
 // Security Headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: true,
+  frameguard: { action: 'deny' },
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xContentTypeOptions: true
+}));
 
 // Cross-Origin Resource Sharing
 const allowedOrigins = [

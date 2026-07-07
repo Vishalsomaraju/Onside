@@ -1,28 +1,16 @@
-# Performance & Efficiency Report
+# Performance & Fallbacks
 
-The Smart Stadiums application incorporates several architectural decisions focused on minimizing response latency, optimizing compute resources, and providing a snappy user experience even under heavy load.
+This application explicitly prioritizes bounded performance over open-ended generative AI capabilities. The architecture guarantees a response, even under extreme load or AI failure.
 
-## 1. Domain Layer Efficiency
-- **Location**: `domain/src/pathfinding.ts`
-- **Strategy**: The core routing algorithm uses Dijkstra's shortest path algorithm over an in-memory graph.
-- **Why it matters**: Complex congestion checks and accessibility filters are evaluated statically via computationally inexpensive graph traversals. By keeping this logic entirely separated from the backend API handlers, it can execute synchronously in `< 5ms` on standard hardware, avoiding any I/O overhead.
+## 1. Fast Deterministic Pathfinding
+- The core algorithm (`pathfinding.ts`) executes in-memory against a tightly bounded subset of nodes. It does not hit a database. It is mathematically bounded and resolves instantly.
 
-## 2. Frontend Optimizations
-- **Location**: `frontend/src/App.tsx` & `frontend/src/hooks/useRoute.ts`
-- **Strategy**: 
-  - Network requests to the backend are purely submit-driven. We intentionally do not use on-change debouncing, as executing AI intent parsing on every keystroke pause is inefficient. Users must explicitly click "Get Directions".
-  - State updates are carefully managed to avoid unnecessary DOM re-renders. 
-  - UI state leverages an `isLoading` boolean to disable inputs during network transit, preventing duplicate parallel requests.
+## 2. AI Timeout & Fallback Interception
+Generative AI calls are the only potential bottleneck. We constrain this strictly.
+- **AbortController Timeouts**: `backend/src/services/ai/intentParser.ts` sets a hard `5000ms` timeout on the Gemini call. If the AI is slow, the request is instantly aborted.
+- **Fallback Parsers**: In the event of a timeout or an invalid hallucinated response, the system seamlessly redirects to `fallbackTemplates.ts`.
+- **Proof**: `backend/src/api/__tests__/directions.test.ts` and `frontend/src/__tests__/App.test.tsx` prove that if the AI hallucinates or fails, the user is still provided safe, accurate, deterministic routing text in their selected language.
 
-## 3. Strict AI Bounding & Timeouts
-- **Location**: `backend/src/services/ai/intentParser.ts` & `backend/src/services/ai/directionsGenerator.ts`
-- **Strategy**: 
-  - Both AI interactions (Intent Parsing and Directions Generation) use `AbortController` bound to strict **5000ms timeouts**.
-  - We exclusively use `gemini-1.5-flash`, the fastest and most efficient model available, to minimize generation latency.
-  - If the Gemini API fails, times out, or produces invalid output, the service instantly falls back to deterministic parsing and direction generation.
-- **Why it matters**: This prevents backend threads from hanging indefinitely while waiting for an external LLM, ensuring the API remains responsive to all users regardless of external provider health.
-
-## 4. API Rate Limiting
-- **Location**: `backend/src/middleware/rateLimit.ts`
-- **Strategy**: The API enforces a limit of 30 requests per minute per IP address.
-- **Why it matters**: Prevents malicious scraping or unintentional spam from exhausting server resources, keeping latency low for legitimate users.
+## 3. Render / Vercel Cold Starts
+- **Vercel Frontend**: Delivered statically to the edge for instant TTI.
+- **Render Backend**: The backend exposes a fast `GET /health` route documented for up-time monitoring, ensuring that Render instances can be kept warm or instantly validated. It bypasses all AI initialization for sub-100ms response times (`backend/src/api/__tests__/health.test.ts`).

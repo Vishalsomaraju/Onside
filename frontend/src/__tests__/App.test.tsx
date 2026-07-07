@@ -84,6 +84,42 @@ describe('App Integration', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
+  it('proves French fallback/no-route results still render safely and accessibly', async () => {
+    // 400 status is what the API returns when no route is found, but it still passes fallback directions
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({
+        success: false,
+        directions: 'Veuillez suivre ces étapes : ...',
+        source: 'fallback',
+        reason: 'No step-free route available'
+      })
+    });
+
+    render(<App />);
+    
+    // Select French
+    const languageSelect = screen.getByLabelText(/Language/i);
+    fireEvent.change(languageSelect, { target: { value: 'fr' } });
+    
+    // Query
+    const queryInput = screen.getByLabelText(/What do you need/i);
+    fireEvent.change(queryInput, { target: { value: 'toilettes' } });
+    
+    const button = screen.getByRole('button', { name: /Get Directions/i });
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      // The directions text should be visible
+      expect(screen.getByText(/Veuillez suivre ces étapes :/)).toBeInTheDocument();
+      // The failure specific UI should show the fallback warning
+      expect(screen.getByText(/Specific turn-by-turn routing is currently unavailable/i)).toBeInTheDocument();
+    });
+    
+    // Make sure no unhandled error alert crashes the app
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('should be accessible at root level (no axe violations)', async () => {
     const { container } = render(<App />);
     const results = await axe(container);

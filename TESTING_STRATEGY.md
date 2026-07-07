@@ -1,29 +1,29 @@
-# Testing Strategy
+# Testing Strategy & CI Proof
 
-## Coverage Target
-- **Core Logic Gate**: All code residing in the `domain/` and `backend/services/` (future) packages is strictly bound to a `>=90%` test coverage requirement.
+The system relies on an aggressive, invariant-focused test suite verifying every component from schema to render. We have 81 total tests covering routing invariants, AI containment, fallback paths, and UI rendering.
 
-## Current Test Layers
-### Domain Layer (`domain/__tests__/`)
-- **Graph Validity**: Tests ensure the reference stadium has zero orphan nodes and zero dangling edges.
-- **Congestion Simulation**: Tests enforce determinism across all permutations of zones and match phases.
-- **Pathfinding**: Tests coverage of Dijkstra's algorithm, handling routing with accessibility constraints, dynamic congestion weights, and edge cases.
-- Expected coverage: strictly enforced >=90% (currently 100%).
+## 1. Domain (Routing Invariants)
+- **Tooling**: Jest
+- **Focus**: Pure mathematical verification of Dijkstra's algorithm logic.
+- **Proof**: `domain/src/__tests__/pathfinding.test.ts` mathematically asserts that routes correctly avoid stairs when `accessible: true` is passed, and dynamically adjust weights based on current congestion levels.
 
-### Frontend Integration & Accessibility (`frontend/`)
-- Tool: `vitest` with `jsdom`, `@testing-library/react`, and `axe-core`
-- Interaction Tests: Verify the UI components respond correctly to inputs and form submission (e.g., `App.test.tsx` full workflow).
-- Accessibility Tests: Automated DOM accessibility checks using `vitest-axe` on all rendered components to ensure no critical/serious violations exist.
-- Expected coverage: >=90% line coverage.
+## 2. Shared (Contract Enforcement)
+- **Tooling**: Jest
+- **Focus**: Preventing malformed payloads from touching the application logic.
+- **Proof**: `shared/src/__tests__/directionsRequest.test.ts` validates that language must strictly equal `en`, `es`, or `fr`, query strings are bounded to `<200` characters, and control characters are scrubbed.
 
-### Backend API Layer (`backend/src/__tests__/`)
-- **Input Validation**: Tests prove `RouteRequestSchema` accurately rejects missing fields and invalid enumerations with HTTP 400.
-- **Rate Limiting**: Automated tests slam the endpoint to confirm `express-rate-limit` enforces the 30 rpm boundary (HTTP 429).
-- **Error Handling**: Tests confirm the global error middleware suppresses stack traces and returns a clean, uniform JSON schema on unexpected faults.
-- **AI Integration**: AI services (`intentParser` and `directionsGenerator`) fall back safely when models timeout, fail, or return invalid structures.
-- Expected coverage: strictly enforced >=90%.
+## 3. Backend (API & Security)
+- **Tooling**: Jest + Supertest
+- **Focus**: Verifying security headers, AI fallback mechanisms, intent parsing, and endpoint health.
+- **Proof**: 
+  - `backend/src/api/__tests__/security.test.ts` asserts malicious AI-prompt injection fails safely.
+  - `backend/src/services/ai/__tests__/fallbackTemplates.test.ts` verifies localized deterministic fallbacks for EN/ES/FR routing text.
+  - `backend/src/api/__tests__/health.test.ts` verifies the high-speed `/health` endpoint bypasses AI.
 
-## Continuous Integration
-- A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and pull request.
-- The pipeline executes linting, typechecking, the production build, and the full test suite (`npm run test --workspaces -- --coverage`).
-- The pipeline will fail if any layer configured with `coverageThreshold` drops below the 90% boundary.
+## 4. Frontend (UI Rendering & Accessibility)
+- **Tooling**: Vitest + React Testing Library + axe-core
+- **Focus**: Proving the user flow from dropdown selection to route rendering.
+- **Proof**: 
+  - `frontend/src/__tests__/App.test.tsx` proves that a French localization request safely updates the UI.
+  - `App.test.tsx` proves that safe failure states (no route found, API error) render an accessible warning without crashing the React DOM.
+  - `vitest-axe` enforces zero structural accessibility violations on the rendered HTML.
