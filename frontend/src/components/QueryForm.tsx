@@ -69,7 +69,7 @@ export function QueryForm({ onSubmit, isLoading }: QueryFormProps) {
           <select 
             id="match-phase-select" 
             value={matchPhase} 
-            onChange={e => setMatchPhase(e.target.value as any)}
+            onChange={e => setMatchPhase(e.target.value as 'pre-match' | 'in-progress' | 'halftime' | 'post-match')}
             disabled={isLoading}
           >
             <option value="pre-match">Pre-match</option>

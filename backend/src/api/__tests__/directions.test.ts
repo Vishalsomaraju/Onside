@@ -92,8 +92,7 @@ describe('POST /api/directions', () => {
 
   it('should pass error to next if an unhandled exception occurs', async () => {
     // Force a mock to throw an error bypassing the safe catch
-    const { parseIntent } = require('../../services/ai/intentParser');
-    parseIntent.mockImplementationOnce(() => { throw new Error('Catastrophic failure'); });
+    (parseIntent as jest.Mock).mockImplementationOnce(() => { throw new Error('Catastrophic failure'); });
     
     const res = await request(app).post('/api/directions').send({
       originId: 'gate-a',

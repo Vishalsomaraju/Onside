@@ -37,7 +37,7 @@ describe('Error Handler Middleware', () => {
   it('should handle errors without a message property', () => {
     const errorString = 'Just a string error';
     
-    errorHandler(errorString as any, mockReq, mockRes, mockNext);
+    errorHandler(errorString as unknown as Error, mockReq, mockRes, mockNext);
     
     expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({

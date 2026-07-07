@@ -1,4 +1,5 @@
 import { findRoute } from '../pathfinding';
+import { mockNodes, mockGraph } from '../graph';
 
 describe('Pathfinding', () => {
   it('should find a valid route between two nodes', () => {
@@ -20,7 +21,6 @@ describe('Pathfinding', () => {
 
   it('should return error if no route found', () => {
     // Add a disconnected node to the graph just for this test
-    const { mockNodes, mockGraph } = require('../graph');
     mockNodes['isolated-node'] = { id: 'isolated-node', label: 'Isolated', zoneId: 'zone-north' };
     mockGraph['isolated-node'] = [];
     
@@ -86,7 +86,6 @@ describe('Pathfinding', () => {
   });
 
   it('should ignore dangling edges safely', () => {
-    const { mockGraph } = require('../graph');
     mockGraph['gate-a'].push({ toNodeId: 'missing-node', distance: 10, stairsOnly: false, baseCongestionWeight: 1 });
     const result = findRoute('gate-a', 'block-101', 'pre-match', false);
     expect(result.success).toBe(true);
@@ -94,7 +93,6 @@ describe('Pathfinding', () => {
   });
 
   it('should skip processing if a better path to the node was already found', () => {
-    const { mockNodes, mockGraph } = require('../graph');
     // Setup a diamond graph where one path is longer, pushing a duplicate sub-optimal entry to PQ
     mockNodes['dummy-1'] = { id: 'dummy-1', label: 'Dummy 1', zoneId: 'concourse-1' };
     mockNodes['dummy-2'] = { id: 'dummy-2', label: 'Dummy 2', zoneId: 'concourse-2' };

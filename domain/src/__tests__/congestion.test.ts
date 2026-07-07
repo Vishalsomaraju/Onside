@@ -1,5 +1,5 @@
 import { getCongestion, getCongestionMultiplier } from '../congestion';
-import { CongestionLevel } from '@smart-stadiums/shared';
+import { CongestionLevel, MatchPhase } from '@smart-stadiums/shared';
 
 describe('Congestion Simulator', () => {
   describe('pre-match', () => {
@@ -41,6 +41,6 @@ describe('Congestion Simulator', () => {
   });
   
   it('should fallback to low for unknown match phase', () => {
-    expect(getCongestion('unknown' as any, 'gate-a')).toBe('low');
+    expect(getCongestion('unknown' as MatchPhase, 'gate-a')).toBe('low');
   });
 });
