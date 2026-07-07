@@ -19,7 +19,7 @@ directionsRouter.post('/', async (req: Request, res: Response, next: NextFunctio
       res.status(400).json({
         success: false,
         reason: 'validation_error',
-        errors: parseResult.error.issues.map((e: any) => ({ path: e.path.join('.'), message: e.message }))
+        errors: parseResult.error.issues.map((e) => ({ path: e.path.join('.'), message: e.message }))
       });
       return;
     }

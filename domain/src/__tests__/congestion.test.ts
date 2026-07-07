@@ -1,5 +1,5 @@
 import { getCongestion, getCongestionMultiplier } from '../congestion';
-import { MatchPhase } from '@smart-stadiums/shared';
+import { CongestionLevel } from '@smart-stadiums/shared';
 
 describe('Congestion Simulator', () => {
   it('should return high congestion for gates during pre-match', () => {
@@ -31,6 +31,6 @@ describe('Congestion Simulator', () => {
     expect(getCongestionMultiplier('medium')).toBe(1.5);
     expect(getCongestionMultiplier('high')).toBe(3.0);
     // test default
-    expect(getCongestionMultiplier('unknown' as any)).toBe(1.0);
+    expect(getCongestionMultiplier('unknown' as CongestionLevel)).toBe(1.0);
   });
 });

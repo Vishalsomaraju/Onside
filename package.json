@@ -11,7 +11,7 @@
   "scripts": {
     "test": "npm run test --workspaces --if-present",
     "lint": "eslint . --ext .ts,.tsx",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npx tsc -b shared domain --force && npm run typecheck --workspaces --if-present",
     "build": "npm run build --workspaces --if-present"
   },
   "devDependencies": {
