@@ -25,7 +25,7 @@ Provide just the conversational directions, no extra JSON or preamble. Keep it u
 `;
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    const timeout = setTimeout(controller.abort.bind(controller), 5000); // 5s timeout
 
     const result = await model.generateContent({
       contents: [{ role: 'user', parts: [{ text: prompt }] }]

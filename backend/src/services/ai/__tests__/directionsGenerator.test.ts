@@ -40,13 +40,21 @@ describe('Directions Generator Service', () => {
     expect(res).toEqual({ directions: 'Go to Node 1.', source: 'ai' });
   });
 
-  it('should throw and fallback if AI returns empty string', async () => {
+  it('should generate directions from steps successfully when accessibilityRequired is true', async () => {
+    const steps: RouteStep[] = [
+      { nodeId: 'ramp-1', label: 'Ramp 1', distanceToNext: 10, congestionLevel: 'low', requiresAccessibleDetour: true }
+    ];
     mockGenerateContent.mockResolvedValue({
-      response: { text: () => '' }
+      response: { text: () => 'Go this way without stairs.' }
     });
 
-    const res = await generateDirections(mockSteps, 'en', false);
-    expect(res.source).toBe('fallback');
+    const result = await generateDirections(steps, 'en', true);
+    expect(result.directions).toBe('Go this way without stairs.');
+    expect(result.source).toBe('ai');
+    
+    // Check that the prompt mentions accessible
+    const callArgs = mockGenerateContent.mock.calls[0][0];
+    expect(JSON.stringify(callArgs)).toContain('accessible (no stairs) route? Yes');
   });
 
   it('should fallback if AI throws', async () => {

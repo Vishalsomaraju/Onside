@@ -28,5 +28,5 @@ jobs:
     - name: Run typecheck
       run: npm run typecheck
       
-    - name: Run tests
-      run: npm run test
+    - name: Run all tests with coverage gate
+      run: npm run test --workspaces -- --coverage

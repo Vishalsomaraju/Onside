@@ -2,20 +2,27 @@ import { errorHandler } from '../middleware/errorHandler';
 import { Request, Response, NextFunction } from 'express';
 
 describe('Error Handler Middleware', () => {
-  it('should mask unexpected errors with a 500 status and standard JSON', () => {
-    const mockError = new Error('Secret Internal Failure');
-    const mockReq = {} as Request;
-    
-    // We need to mock res.status and res.json
-    const mockRes = {
+  let mockReq: Request;
+  let mockRes: Response;
+  let mockNext: NextFunction;
+  let consoleSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    mockReq = {} as Request;
+    mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
     } as unknown as Response;
-    
-    const mockNext = jest.fn() as NextFunction;
-    
-    // Spy on console.error to avoid test output noise
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    mockNext = jest.fn() as NextFunction;
+    consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
+  });
+
+  it('should mask unexpected errors with a 500 status and standard JSON', () => {
+    const mockError = new Error('Secret Internal Failure');
 
     errorHandler(mockError, mockReq, mockRes, mockNext);
 
@@ -25,7 +32,18 @@ describe('Error Handler Middleware', () => {
       reason: 'internal_server_error',
       message: 'An unexpected error occurred. Please try again later.'
     });
+  });
 
-    consoleSpy.mockRestore();
+  it('should handle errors without a message property', () => {
+    const errorString = 'Just a string error';
+    
+    errorHandler(errorString as any, mockReq, mockRes, mockNext);
+    
+    expect(mockRes.status).toHaveBeenCalledWith(500);
+    expect(mockRes.json).toHaveBeenCalledWith({
+      success: false,
+      reason: 'internal_server_error',
+      message: 'An unexpected error occurred. Please try again later.'
+    });
   });
 });

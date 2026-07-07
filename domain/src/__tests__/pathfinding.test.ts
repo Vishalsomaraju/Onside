@@ -84,4 +84,40 @@ describe('Pathfinding', () => {
     // This is covered internally, but testing that it doesn't throw.
     expect(() => findRoute('gate-b', 'restroom-north', 'halftime', false)).not.toThrow();
   });
+
+  it('should ignore dangling edges safely', () => {
+    const { mockGraph } = require('../graph');
+    mockGraph['gate-a'].push({ toNodeId: 'missing-node', distance: 10, stairsOnly: false, baseCongestionWeight: 1 });
+    const result = findRoute('gate-a', 'block-101', 'pre-match', false);
+    expect(result.success).toBe(true);
+    mockGraph['gate-a'].pop(); // cleanup
+  });
+
+  it('should skip processing if a better path to the node was already found', () => {
+    const { mockNodes, mockGraph } = require('../graph');
+    // Setup a diamond graph where one path is longer, pushing a duplicate sub-optimal entry to PQ
+    mockNodes['dummy-1'] = { id: 'dummy-1', label: 'Dummy 1', zoneId: 'concourse-1' };
+    mockNodes['dummy-2'] = { id: 'dummy-2', label: 'Dummy 2', zoneId: 'concourse-2' };
+    mockNodes['dummy-target'] = { id: 'dummy-target', label: 'Dummy Target', zoneId: 'concourse-3' };
+    
+    mockGraph['gate-a'].push(
+      { toNodeId: 'dummy-1', distance: 10, stairsOnly: false, baseCongestionWeight: 1 },
+      { toNodeId: 'dummy-2', distance: 50, stairsOnly: false, baseCongestionWeight: 1 }
+    );
+    mockGraph['dummy-1'] = [{ toNodeId: 'dummy-target', distance: 100, stairsOnly: false, baseCongestionWeight: 1 }];
+    mockGraph['dummy-2'] = [{ toNodeId: 'dummy-target', distance: 10, stairsOnly: false, baseCongestionWeight: 1 }];
+    mockGraph['dummy-target'] = [];
+
+    const result = findRoute('gate-a', 'dummy-target', 'pre-match', false);
+    expect(result.success).toBe(true);
+
+    // cleanup
+    mockGraph['gate-a'].splice(mockGraph['gate-a'].length - 2, 2);
+    delete mockNodes['dummy-1'];
+    delete mockNodes['dummy-2'];
+    delete mockNodes['dummy-target'];
+    delete mockGraph['dummy-1'];
+    delete mockGraph['dummy-2'];
+    delete mockGraph['dummy-target'];
+  });
 });

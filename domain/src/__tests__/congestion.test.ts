@@ -2,34 +2,32 @@ import { getCongestion, getCongestionMultiplier } from '../congestion';
 import { MatchPhase } from '@smart-stadiums/shared';
 
 describe('Congestion Simulator', () => {
-  it('should return high congestion for gates during pre-match', () => {
-    expect(getCongestion('pre-match', 'gate-north')).toBe('high');
+  describe('pre-match', () => {
+    it('should be high for gates', () => expect(getCongestion('pre-match', 'gate-north')).toBe('high'));
+    it('should be medium for concourse', () => expect(getCongestion('pre-match', 'concourse-north')).toBe('medium'));
+    it('should be low for other', () => expect(getCongestion('pre-match', 'block-101')).toBe('low'));
   });
 
   describe('in-progress', () => {
-    it('should be low for gate', () => {
-      expect(getCongestion('in-progress', 'gate-a')).toBe('low');
-    });
-    
-    it('should be high for block', () => {
-      expect(getCongestion('in-progress', 'block-101')).toBe('high');
-    });
-    
-    it('should be low for other zones', () => {
-      expect(getCongestion('in-progress', 'unknown')).toBe('low');
-    });
+    it('should be low for gate', () => expect(getCongestion('in-progress', 'gate-a')).toBe('low'));
+    it('should be low for concourse', () => expect(getCongestion('in-progress', 'concourse-a')).toBe('low'));
+    it('should be high for block', () => expect(getCongestion('in-progress', 'block-101')).toBe('high'));
+    it('should be low for other', () => expect(getCongestion('in-progress', 'restroom-1')).toBe('low'));
   });
 
-  it('should return high congestion for restrooms and food during halftime', () => {
-    expect(getCongestion('halftime', 'food-east')).toBe('high');
-    expect(getCongestion('halftime', 'restroom-north')).toBe('high');
-    expect(getCongestion('halftime', 'gate-north')).toBe('medium');
+  describe('halftime', () => {
+    it('should be high for concourse', () => expect(getCongestion('halftime', 'concourse-east')).toBe('high'));
+    it('should be high for food/restroom', () => {
+      expect(getCongestion('halftime', 'food-east')).toBe('high');
+      expect(getCongestion('halftime', 'restroom-north')).toBe('high');
+    });
+    it('should be medium for other', () => expect(getCongestion('halftime', 'gate-north')).toBe('medium'));
   });
 
-  it('should return appropriate congestion for post-match', () => {
-    expect(getCongestion('post-match', 'gate-north')).toBe('high');
-    expect(getCongestion('post-match', 'concourse-east')).toBe('high');
-    expect(getCongestion('post-match', 'block-101')).toBe('low');
+  describe('post-match', () => {
+    it('should be high for gate', () => expect(getCongestion('post-match', 'gate-north')).toBe('high'));
+    it('should be high for concourse', () => expect(getCongestion('post-match', 'concourse-east')).toBe('high'));
+    it('should be low for other', () => expect(getCongestion('post-match', 'block-101')).toBe('low'));
   });
 
   it('should return expected multipliers', () => {

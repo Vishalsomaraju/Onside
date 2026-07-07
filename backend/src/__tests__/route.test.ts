@@ -1,5 +1,14 @@
 import request from 'supertest';
 import { app } from '../app';
+import { findRoute } from '@smart-stadiums/domain';
+
+jest.mock('@smart-stadiums/domain', () => {
+  const original = jest.requireActual('@smart-stadiums/domain');
+  return {
+    ...original,
+    findRoute: jest.fn(original.findRoute)
+  };
+});
 
 describe('POST /api/route', () => {
   it('should return 400 for missing required fields', async () => {
@@ -61,6 +70,23 @@ describe('POST /api/route', () => {
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.reason).toBe('invalid_nodes');
+  });
+
+  it('should trigger global error handler if domain logic throws unexpectedly', async () => {
+    (findRoute as jest.Mock).mockImplementationOnce(() => {
+      throw new Error('Unexpected domain crash');
+    });
+
+    const res = await request(app).post('/api/route').send({
+      originId: 'gate-a',
+      destinationId: 'block-101',
+      matchPhase: 'pre-match',
+      accessibilityRequired: false
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.reason).toBe('internal_server_error');
   });
 
   it('should enforce rate limiting', async () => {
