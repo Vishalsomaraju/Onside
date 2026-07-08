@@ -84,9 +84,11 @@ export function getEdges(id: string) {
   return mockGraph[id] || [];
 }
 
+const DESTINATION_NODE_IDS_CACHE = Object.keys(mockNodes);
+
 /**
  * Returns a list of all valid destination node IDs in the graph.
  */
 export function getDestinationNodeIds(): string[] {
-  return Object.keys(mockNodes);
+  return DESTINATION_NODE_IDS_CACHE;
 }

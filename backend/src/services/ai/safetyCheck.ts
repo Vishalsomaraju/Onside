@@ -3,17 +3,17 @@
  * @param query The user's input
  * @param language The requested language (en, es, fr)
  */
+// Keep list small and specific to avoid false positives
+const EMERGENCY_KEYWORDS = [
+  'emergency', 'fire', 'heart attack', 'medical advice', 'lawsuit', // EN
+  'emergencia', 'fuego', 'incendio', 'infarto', 'ataque al corazón', 'demanda', // ES
+  'urgence', 'feu', 'incendie', 'crise cardiaque', 'conseil médical', 'poursuite' // FR
+];
+
 export const checkSafety = (query: string, language: string): { isSafe: boolean; declineMessage?: string } => {
   const q = query.toLowerCase();
 
-  // Keep list small and specific to avoid false positives
-  const emergencyKeywords = [
-    'emergency', 'fire', 'heart attack', 'medical advice', 'lawsuit', // EN
-    'emergencia', 'fuego', 'incendio', 'infarto', 'ataque al corazón', 'demanda', // ES
-    'urgence', 'feu', 'incendie', 'crise cardiaque', 'conseil médical', 'poursuite' // FR
-  ];
-
-  for (const keyword of emergencyKeywords) {
+  for (const keyword of EMERGENCY_KEYWORDS) {
     if (q.includes(keyword)) {
       let declineMessage = 'For emergencies, medical, or legal issues, please contact stadium staff or security immediately.';
       if (language === 'es') {

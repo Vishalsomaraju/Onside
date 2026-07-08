@@ -6,25 +6,38 @@ import { getDestinationNodeIds } from '@smart-stadiums/domain';
  * Deterministic fallback for intent parsing.
  * Matches keywords to known destinations.
  */
+const ACC_KEYWORDS = [
+  'wheelchair', 'accessible', 'step-free', 'no stairs', 'ramp', 'elevator',
+  'silla de ruedas', 'accesible', 'sin escaleras', 'rampa', 'ascensor',
+  'fauteuil roulant', 'accessible', 'sans escalier', 'rampe', 'ascenseur'
+];
+
+const FOOD_KW_EN = ['food', 'hot dog', 'beer', 'concession'];
+const FOOD_KW_ES = [...FOOD_KW_EN, 'comida', 'cerveza', 'concesión'];
+const FOOD_KW_FR = [...FOOD_KW_EN, 'nourriture', 'bière', 'concession'];
+
+const RR_KW_EN = ['restroom', 'bathroom', 'toilet', 'wc'];
+const RR_KW_ES = [...RR_KW_EN, 'baño', 'aseo', 'sanitario'];
+const RR_KW_FR = [...RR_KW_EN, 'toilettes', 'bain'];
+
+const EXIT_KW_EN = ['exit'];
+const EXIT_KW_ES = [...EXIT_KW_EN, 'salida'];
+const EXIT_KW_FR = [...EXIT_KW_EN, 'sortie'];
+
 // eslint-disable-next-line complexity -- Fallback keyword checking inherently requires multiple branching paths
 export const parseIntentFallback = (query: string, language: string = 'en'): { destinationId: string; accessibilityRequired: boolean } => {
   const q = query.toLowerCase();
   
-  const accKeywords = [
-    'wheelchair', 'accessible', 'step-free', 'no stairs', 'ramp', 'elevator',
-    'silla de ruedas', 'accesible', 'sin escaleras', 'rampa', 'ascensor',
-    'fauteuil roulant', 'accessible', 'sans escalier', 'rampe', 'ascenseur'
-  ];
-  const accessibilityRequired = accKeywords.some(kw => q.includes(kw));
+  const accessibilityRequired = ACC_KEYWORDS.some(kw => q.includes(kw));
   
   let destinationId = 'block-101'; // Safe default
 
   const isEs = language === 'es';
   const isFr = language === 'fr';
 
-  const foodKw = ['food', 'hot dog', 'beer', 'concession', ...(isEs ? ['comida', 'cerveza', 'concesión'] : []), ...(isFr ? ['nourriture', 'bière', 'concession'] : [])];
-  const rrKw = ['restroom', 'bathroom', 'toilet', 'wc', ...(isEs ? ['baño', 'aseo', 'sanitario'] : []), ...(isFr ? ['toilettes', 'bain'] : [])];
-  const exitKw = ['exit', ...(isEs ? ['salida'] : []), ...(isFr ? ['sortie'] : [])];
+  const foodKw = isEs ? FOOD_KW_ES : isFr ? FOOD_KW_FR : FOOD_KW_EN;
+  const rrKw = isEs ? RR_KW_ES : isFr ? RR_KW_FR : RR_KW_EN;
+  const exitKw = isEs ? EXIT_KW_ES : isFr ? EXIT_KW_FR : EXIT_KW_EN;
 
   if (foodKw.some(kw => q.includes(kw))) {
     destinationId = 'food-east';

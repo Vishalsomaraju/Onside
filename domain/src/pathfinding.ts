@@ -43,9 +43,14 @@ export function findRoute(
   let found = false;
 
   while (pq.length > 0) {
-    // Basic array sort for priority queue (fine for small stadium graphs)
-    pq.sort((a, b) => a.cost - b.cost);
-    const current = pq.shift()!;
+    let minIndex = 0;
+    for (let i = 1; i < pq.length; i++) {
+      if (pq[i].cost < pq[minIndex].cost) {
+        minIndex = i;
+      }
+    }
+    const current = pq[minIndex];
+    pq.splice(minIndex, 1);
 
     if (current.id === destinationId) {
       found = true;
