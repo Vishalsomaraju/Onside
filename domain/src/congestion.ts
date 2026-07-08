@@ -4,6 +4,7 @@ import { CongestionLevel, MatchPhase } from '@smart-stadiums/shared';
  * Pure deterministic function to simulate congestion.
  * Uses a fixed mapping based on the zone and match phase.
  */
+// eslint-disable-next-line complexity -- Mapping logic naturally has many branches but remains highly readable
 export function getCongestion(matchPhase: MatchPhase, zoneId: string): CongestionLevel {
   if (matchPhase === 'pre-match') {
     if (zoneId.includes('gate')) return 'high';

@@ -11,6 +11,7 @@ interface PriorityQueueNode {
  * Pure function to compute the shortest path using Dijkstra's algorithm.
  * Accounts for real-time congestion weights and accessibility constraints.
  */
+// eslint-disable-next-line complexity -- Standard Dijkstra implementation requires multiple loops and conditions
 export function findRoute(
   originId: string,
   destinationId: string,

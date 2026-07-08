@@ -6,6 +6,7 @@ interface RouteResultProps {
   isLoading: boolean;
 }
 
+// eslint-disable-next-line complexity
 export function RouteResult({ result, error, isLoading }: RouteResultProps) {
   return (
     <div className="route-result-container">

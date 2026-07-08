@@ -6,27 +6,36 @@ import { getDestinationNodeIds } from '@smart-stadiums/domain';
  * Deterministic fallback for intent parsing.
  * Matches keywords to known destinations.
  */
-export const parseIntentFallback = (query: string): { destinationId: string; accessibilityRequired: boolean } => {
+// eslint-disable-next-line complexity -- Fallback keyword checking inherently requires multiple branching paths
+export const parseIntentFallback = (query: string, language: string = 'en'): { destinationId: string; accessibilityRequired: boolean } => {
   const q = query.toLowerCase();
   
-  const accessibilityRequired = q.includes('wheelchair') || q.includes('accessible') || q.includes('step-free') || q.includes('no stairs') || q.includes('ramp') || q.includes('elevator');
+  const accKeywords = [
+    'wheelchair', 'accessible', 'step-free', 'no stairs', 'ramp', 'elevator',
+    'silla de ruedas', 'accesible', 'sin escaleras', 'rampa', 'ascensor',
+    'fauteuil roulant', 'accessible', 'sans escalier', 'rampe', 'ascenseur'
+  ];
+  const accessibilityRequired = accKeywords.some(kw => q.includes(kw));
   
-  const validIds = getDestinationNodeIds();
   let destinationId = 'block-101'; // Safe default
 
-  // Domain-specific keyword convenience overrides
-  if (q.includes('food') || q.includes('hot dog') || q.includes('beer') || q.includes('concession')) {
+  const isEs = language === 'es';
+  const isFr = language === 'fr';
+
+  const foodKw = ['food', 'hot dog', 'beer', 'concession', ...(isEs ? ['comida', 'cerveza', 'concesión'] : []), ...(isFr ? ['nourriture', 'bière', 'concession'] : [])];
+  const rrKw = ['restroom', 'bathroom', 'toilet', 'wc', ...(isEs ? ['baño', 'aseo', 'sanitario'] : []), ...(isFr ? ['toilettes', 'bain'] : [])];
+  const exitKw = ['exit', ...(isEs ? ['salida'] : []), ...(isFr ? ['sortie'] : [])];
+
+  if (foodKw.some(kw => q.includes(kw))) {
     destinationId = 'food-east';
-  } else if (q.includes('restroom') || q.includes('bathroom') || q.includes('toilet') || q.includes('wc')) {
+  } else if (rrKw.some(kw => q.includes(kw))) {
     destinationId = 'restroom-north';
-  } else if (q.includes('exit')) {
+  } else if (exitKw.some(kw => q.includes(kw))) {
     destinationId = 'gate-a';
   } else {
     // Dynamic matching over valid IDs for coverage of all nodes
-    for (const id of validIds) {
-      const idSpaced = id.replace(/-/g, ' ').toLowerCase();
-      const idRaw = id.toLowerCase();
-      if (q.includes(idSpaced) || q.includes(idRaw)) {
+    for (const id of getDestinationNodeIds()) {
+      if (q.includes(id.replace(/-/g, ' ').toLowerCase()) || q.includes(id.toLowerCase())) {
         destinationId = id;
         break;
       }

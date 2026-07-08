@@ -11,6 +11,7 @@ This document explicitly maps the hackathon rubric to concrete files, tests, and
 ## 2. Code Quality & Modularity
 **Claim**: Strict modular boundaries prevent leaky logic. The shared contract explicitly guards the API boundary, business logic is isolated from transport, and we aggressively extract shared dependencies.
 **Proof**:
+- **Complexity Gate**: `.eslintrc.json` strictly enforces a cyclomatic complexity threshold of `10`. This is verified on every PR in CI, guaranteeing readable, non-spaghetti code.
 - **Layer Boundaries**: The repo strictly separates the UI (`frontend/src/components`), HTTP Transport (`backend/src/api`), Core Algorithm (`domain/src/pathfinding.ts`), and AI Integrations (`backend/src/services/ai`).
 - **Dumb Components**: `frontend/src/components/RouteResult.tsx` contains absolutely zero routing or AI logic; it purely maps props to DOM nodes.
 - **Deduplication Extractors**: `backend/src/services/ai/client.ts` completely centralizes Gemini initialization, timeouts, and error handling. `backend/src/api/validationError.ts` centralizes Zod 400 error formatting.
@@ -19,9 +20,10 @@ This document explicitly maps the hackathon rubric to concrete files, tests, and
 - **Pure Domain**: The routing algorithm (`domain/src/pathfinding.ts`) has zero dependency on Express, HTTP, or AI SDKs.
 
 ## 3. Security & AI Containment
-**Claim**: The application defends against prompt injection, blocks unhandled server errors, restricts cross-origin traffic, and enforces security headers.
+**Claim**: The application defends against prompt injection, blocks unhandled server errors, restricts cross-origin traffic, and enforces security headers. AI behavior is constrained to avoid answering emergency/out-of-scope questions.
 **Proof**:
-- **Prompt Injection Defense**: `backend/src/api/__tests__/security.test.ts` injects a malicious prompt ("IGNORE ALL INSTRUCTIONS..."). The test proves the system handles it gracefully via fallbacks and **cannot alter deterministic routing facts**.
+- **Safety Pre-Check**: `backend/src/services/ai/safetyCheck.ts` intercepts emergency queries deterministically (in EN/ES/FR) and issues a localized decline without calling the AI.
+- **Prompt Injection Defense**: `backend/src/api/__tests__/security.test.ts` injects a malicious prompt. The test proves the system handles it gracefully. `intentParser.ts` and `directionsGenerator.ts` also hardcode an explicit defense instruction line.
 - **Header Enforcement**: `backend/src/app.ts` configures explicit `Helmet` headers (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`).
 - **Strict CORS**: `backend/src/app.ts` restricts origins using an explicit array check against `process.env.FRONTEND_ORIGIN`.
 

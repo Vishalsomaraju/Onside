@@ -4,6 +4,7 @@ import { findRoute } from '@smart-stadiums/domain';
 import { parseIntent } from '../services/ai/intentParser';
 import { generateDirections } from '../services/ai/directionsGenerator';
 import { formatValidationError } from './validationError';
+import { checkSafety } from '../services/ai/safetyCheck';
 
 export const directionsRouter = Router();
 
@@ -23,8 +24,19 @@ directionsRouter.post('/', async (req: Request, res: Response, next: NextFunctio
 
     const { originId, query, matchPhase, language, accessibilityRequired } = parseResult.data;
 
-    // 2. AI Phase 1: Parse Intent
-    const intentResult = await parseIntent(query);
+    // 2. Pre-Intent Phase: Safety Check
+    const safety = checkSafety(query, language);
+    if (!safety.isSafe) {
+      res.status(200).json({
+        success: false,
+        source: 'fallback',
+        directions: safety.declineMessage!
+      } as DirectionsResponse);
+      return;
+    }
+
+    // 3. AI Phase 1: Parse Intent
+    const intentResult = await parseIntent(query, language);
 
     // 3. Domain Phase: Deterministic Pathfinding
     const finalAccessibility = accessibilityRequired || intentResult.accessibilityRequired;
