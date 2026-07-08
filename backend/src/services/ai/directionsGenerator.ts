@@ -1,5 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { RouteStep } from '@smart-stadiums/shared';
+import { callAI } from './client';
+
 import { generateDirectionsFallback } from './fallbackTemplates';
 
 export const generateDirections = async (steps: RouteStep[], language: string, accessibilityRequired: boolean): Promise<{ directions: string, source: 'ai' | 'fallback' }> => {
@@ -9,9 +10,6 @@ export const generateDirections = async (steps: RouteStep[], language: string, a
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    
     const prompt = `
 You are a helpful stadium concierge. The routing algorithm has computed the following path for the user.
 Please format these steps into clear, concise natural language directions. 
@@ -24,22 +22,8 @@ ${JSON.stringify(steps, null, 2)}
 Provide just the conversational directions, no extra JSON or preamble. Keep it under 4 sentences if possible. Mention congestion if it is high.
 `;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(controller.abort.bind(controller), 5000); // 5s timeout
-
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }]
-    }, { signal: controller.signal });
-    
-    clearTimeout(timeout);
-
-    const text = result.response.text();
-    
-    if (text && text.trim().length > 0) {
-      return { directions: text.trim(), source: 'ai' };
-    }
-    
-    throw new Error('Empty AI response');
+    const text = await callAI(prompt, false);
+    return { directions: text.trim(), source: 'ai' };
   } catch (error) {
     console.warn('[AI DirectionsGenerator Failed or Timeout]', (error as Error).message);
     return { directions: generateDirectionsFallback(steps, language), source: 'fallback' };

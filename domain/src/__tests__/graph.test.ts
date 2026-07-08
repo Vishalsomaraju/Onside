@@ -1,4 +1,4 @@
-import { mockGraph, mockNodes, getEdges, getNode } from '../graph';
+import { mockGraph, mockNodes, getEdges, getNode, getDestinationNodeIds } from '../graph';
 
 describe('Graph Validation', () => {
   it('should not have any orphan nodes', () => {
@@ -37,5 +37,17 @@ describe('Graph Validation', () => {
 
     expect(getEdges('gate-a').length).toBeGreaterThan(0);
     expect(getEdges('invalid')).toEqual([]);
+  });
+
+  describe('getDestinationNodeIds', () => {
+    it('should return an array of all node IDs defined in the graph', () => {
+      const ids = getDestinationNodeIds();
+      expect(Array.isArray(ids)).toBe(true);
+      expect(ids.length).toBeGreaterThan(0);
+      expect(ids).toContain('gate-a');
+      expect(ids).toContain('block-101');
+      expect(ids).toContain('concourse-north');
+      expect(ids).toContain('ramp-1');
+    });
   });
 });

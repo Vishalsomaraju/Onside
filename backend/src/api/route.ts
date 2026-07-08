@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { RouteRequestSchema } from '@smart-stadiums/shared';
 import { findRoute } from '@smart-stadiums/domain';
+import { formatValidationError } from './validationError';
 
 export const routeRouter = Router();
 
@@ -14,11 +15,7 @@ routeRouter.post('/', (req: Request, res: Response, next: NextFunction) => {
     // 1. Validate Input
     const parseResult = RouteRequestSchema.safeParse(req.body);
     if (!parseResult.success) {
-      res.status(400).json({
-        success: false,
-        reason: 'validation_error',
-        errors: parseResult.error.issues.map((e) => ({ path: e.path.join('.'), message: e.message }))
-      });
+      res.status(400).json(formatValidationError(parseResult.error));
       return;
     }
 

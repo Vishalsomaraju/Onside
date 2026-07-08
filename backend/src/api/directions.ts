@@ -3,6 +3,7 @@ import { DirectionsRequestSchema, DirectionsResponse } from '@smart-stadiums/sha
 import { findRoute } from '@smart-stadiums/domain';
 import { parseIntent } from '../services/ai/intentParser';
 import { generateDirections } from '../services/ai/directionsGenerator';
+import { formatValidationError } from './validationError';
 
 export const directionsRouter = Router();
 
@@ -16,11 +17,7 @@ directionsRouter.post('/', async (req: Request, res: Response, next: NextFunctio
     // 1. Validate Input
     const parseResult = DirectionsRequestSchema.safeParse(req.body);
     if (!parseResult.success) {
-      res.status(400).json({
-        success: false,
-        reason: 'validation_error',
-        errors: parseResult.error.issues.map((e) => ({ path: e.path.join('.'), message: e.message }))
-      });
+      res.status(400).json(formatValidationError(parseResult.error));
       return;
     }
 

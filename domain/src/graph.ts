@@ -83,3 +83,10 @@ export function getNode(id: string) {
 export function getEdges(id: string) {
   return mockGraph[id] || [];
 }
+
+/**
+ * Returns a list of all valid destination node IDs in the graph.
+ */
+export function getDestinationNodeIds(): string[] {
+  return Object.keys(mockNodes);
+}

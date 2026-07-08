@@ -1,4 +1,5 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getDestinationNodeIds } from '@smart-stadiums/domain';
+import { callAI } from './client';
 import { parseIntentFallback } from './fallbackTemplates';
 
 export const parseIntent = async (query: string): Promise<{ destinationId: string; accessibilityRequired: boolean, source: 'ai' | 'fallback' }> => {
@@ -8,31 +9,19 @@ export const parseIntent = async (query: string): Promise<{ destinationId: strin
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', generationConfig: { responseMimeType: 'application/json' } });
-    
+    const validIds = getDestinationNodeIds();
     const prompt = `
 You are an intent parser for a stadium routing app. 
 Map the user's query to a valid destination ID and determine if they need an accessible (no stairs) route.
-Valid destination IDs: "gate-a", "gate-b", "block-101", "restroom-north", "food-east".
+Valid destination IDs: ${validIds.map(id => `"${id}"`).join(', ')}.
 Respond with strict JSON in this format: {"destinationId": "string", "accessibilityRequired": boolean}
 
 User Query: "${query}"
 `;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(controller.abort.bind(controller), 5000); // 5s timeout
-
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }]
-    }, { signal: controller.signal });
-    
-    clearTimeout(timeout);
-
-    const text = result.response.text();
+    const text = await callAI(prompt, true);
     const parsed = JSON.parse(text);
 
-    const validIds = ['gate-a', 'gate-b', 'block-101', 'restroom-north', 'food-east'];
     if (typeof parsed.destinationId === 'string' && typeof parsed.accessibilityRequired === 'boolean') {
       if (!validIds.includes(parsed.destinationId)) {
         throw new Error('AI returned an invalid destination ID');
