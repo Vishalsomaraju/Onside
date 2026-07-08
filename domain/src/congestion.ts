@@ -1,52 +1,37 @@
 import { CongestionLevel, MatchPhase } from '@smart-stadiums/shared';
 
+type ZoneConfig = { fallback: CongestionLevel; overrides: Record<string, CongestionLevel> };
+const phaseConfig: Record<MatchPhase, ZoneConfig> = {
+  'pre-match': { fallback: 'low', overrides: { gate: 'high', concourse: 'medium' } },
+  'in-progress': { fallback: 'low', overrides: { gate: 'low', concourse: 'low', block: 'high' } },
+  'halftime': { fallback: 'medium', overrides: { concourse: 'high', food: 'high', restroom: 'high' } },
+  'post-match': { fallback: 'low', overrides: { gate: 'high', concourse: 'high' } }
+};
+
 /**
  * Pure deterministic function to simulate congestion.
  * Uses a fixed mapping based on the zone and match phase.
  */
-// eslint-disable-next-line complexity -- Mapping logic naturally has many branches but remains highly readable
 export function getCongestion(matchPhase: MatchPhase, zoneId: string): CongestionLevel {
-  if (matchPhase === 'pre-match') {
-    if (zoneId.includes('gate')) return 'high';
-    if (zoneId.includes('concourse')) return 'medium';
-    return 'low';
+  const config = phaseConfig[matchPhase];
+  if (!config) return 'low';
+
+  for (const [keyword, level] of Object.entries(config.overrides)) {
+    if (zoneId.includes(keyword)) return level;
   }
 
-  if (matchPhase === 'in-progress') {
-    if (zoneId.includes('gate')) return 'low';
-    if (zoneId.includes('concourse')) return 'low';
-    // Seating blocks are full
-    if (zoneId.includes('block')) return 'high';
-    return 'low';
-  }
-
-  if (matchPhase === 'halftime') {
-    if (zoneId.includes('concourse')) return 'high';
-    if (zoneId.includes('food') || zoneId.includes('restroom')) return 'high';
-    return 'medium';
-  }
-
-  if (matchPhase === 'post-match') {
-    if (zoneId.includes('gate')) return 'high';
-    if (zoneId.includes('concourse')) return 'high';
-    return 'low';
-  }
-
-  return 'low'; // fallback
+  return config.fallback;
 }
+
+const CONGESTION_MULTIPLIERS: Record<CongestionLevel, number> = {
+  low: 1.0,
+  medium: 1.5,
+  high: 3.0
+};
 
 /**
  * Returns a numerical multiplier for the given congestion level.
  */
 export function getCongestionMultiplier(level: CongestionLevel): number {
-  switch (level) {
-    case 'low':
-      return 1.0;
-    case 'medium':
-      return 1.5;
-    case 'high':
-      return 3.0;
-    default:
-      return 1.0;
-  }
+  return CONGESTION_MULTIPLIERS[level] || 1.0;
 }
